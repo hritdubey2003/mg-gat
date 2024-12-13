@@ -2,6 +2,7 @@
 
 This repository holds the Tensorflow based implementation of Multi-Graph Graph Attention Network (MG-GAT) proposed in the 
 [Interpretable Recommender System With Heterogeneous Information: A Geometric Deep Learning Perspective](http://dx.doi.org/10.2139/ssrn.3696092). 
+We have added an extra feature of Movie Recommendation System using the Graph based Indexing over Movie lens in final!
 
 ## Getting started
 
