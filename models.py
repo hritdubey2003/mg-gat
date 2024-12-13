@@ -1,5 +1,4 @@
 import os
-
 from hyperopt import hp
 import numpy as np
 import pandas as pd
@@ -10,10 +9,13 @@ import scipy.sparse as sp
 from scipy.sparse.csgraph import laplacian
 from scipy.sparse.linalg import svds
 import tensorflow.compat.v1 as tf
+import time
 
 from datasets import Dataset
 import layers
 import metrics
+import matplotlib.pyplot as plt
+
 
 
 class Model(object):
@@ -42,7 +44,7 @@ class Model(object):
         self.rmse = tf.reduce_mean((self.r_pred - self.r_true)**2)**0.5
         
         # Adam optimization with default learning rate
-        self.opt = tf.train.AdamOptimizer().minimize(self.loss)
+        self.opt = tf.train.AdamOptimizer(learning_rate=0.001).minimize(self.loss)
 
     def _params(self):
         # see example models below
@@ -104,22 +106,59 @@ class Model(object):
             self.r_true: batch.rating,
         })
 
-    def train(self, max_updates=100000, n_check=100, patience=float('inf'), batch_size=None):
+    def train(self, max_updates=10000, n_check=100, patience=float('inf'), batch_size=None):
+        # Initialize the TensorFlow variables
         self.session.run(tf.global_variables_initializer())
-        best = {'updates': 0, 'loss': float('inf'),  'rmse_tune': float('inf')}
+        
+        # Best model tracking dictionary
+        best = {'updates': 0, 'loss': float('inf'), 'rmse_tune': float('inf')}
+        
+        # Lists to store loss values for plotting
+        loss_history = []
+        
+        # Create the plot figure
+        plt.ion()  # Turn on interactive mode
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.set_xlabel('Epochs')
+        ax.set_ylabel('Loss')
+        ax.set_title('Real-time Loss Graph')
+        
         for i in range(max_updates):
-            # update
+            start_time = time.time()
+            print(f"Updates: {i}and {batch_size}")
+            # Get the current batch and perform optimization step
             opt, loss = self.run([self.opt, self.loss], self.dataset.get_batch(mode='train', size=batch_size))
+            
+            # Append the loss to the history list
+            loss_history.append(loss)
+            
+            # Plot the loss at regular intervals
             if i % n_check == 0 or i == max_updates - 1:
-                # monitoring
+                # Compute the RMSE for tuning and testing
                 rmse_tune = self.run(self.rmse, self.dataset.get_batch(mode='tune', size=None))
+                
                 if len(self.dataset.tune) == 0 or rmse_tune < best['rmse_tune']:
                     rmse_test = self.run(self.rmse, self.dataset.get_batch(mode='test', size=None))
                     best = {'updates': i, 'loss': loss, 'rmse_tune': rmse_tune, 'rmse_test': rmse_test}
+                
                 print(best)
-                if (i - best['updates'])//n_check > patience:
-                    # early stopping
+                
+                # Update the plot with the latest loss values
+                ax.plot(loss_history, label='Loss', color='blue')
+                ax.set_xlim(0, i)  # Adjust the x-axis limit to show recent updates
+                ax.set_ylim(min(loss_history) - 0.1, max(loss_history) + 0.1)  # Adjust y-axis dynamically
+                plt.draw()  # Redraw the plot with updated data
+                plt.pause(0.1)  # Pause to allow real-time plotting
+                
+                # Early stopping logic
+                if (i - best['updates']) // n_check > patience:
                     break
+        
+        # Turn off interactive mode after training is complete
+        plt.ioff()  # Disable interactive mode
+        plt.show()  # Ensure the final plot is displayed
+        end_time = time.time()
+        print(f"Training completed in {end_time - start_time} seconds.")
         return best
     
     def test(self):
@@ -439,6 +478,7 @@ if __name__ == '__main__':
                     'activation_in': hp.choice('activation_in', ACTIVATIONS),
                     'activation_out': hp.choice('activation_out', ACTIVATIONS),
                     'residual': hp.choice('residual', [True, False]),
+                    'learning_rate': hp.loguniform('learning_rate', 0.5, 0),
                 }, metric='rmse', mode='min'),
             scheduler=AsyncHyperBandScheduler(metric='rmse', mode='min', max_t=N_FOLDS),
             resources_per_trial={"gpu": 1},
