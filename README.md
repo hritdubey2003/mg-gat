@@ -1,9 +1,9 @@
 # Multi-Graph Graph Attention Network (MG-GAT)
 
-This repository holds the Tensorflow based implementation of Multi-Graph Graph Attention Network (MG-GAT) proposed in the 
-[Interpretable Recommender System With Heterogeneous Information: A Geometric Deep Learning Perspective](http://dx.doi.org/10.2139/ssrn.3696092). 
+This repository holds the Tensorflow-based implementation of Multi-Graph Graph Attention Network (MG-GAT) proposed in the [Interpretable Recommender System With Heterogeneous Information: A Geometric Deep Learning Perspective](http://dx.doi.org/10.2139/ssrn.3696092).  
+We have added an extra feature of a Movie Recommendation System using graph-based indexing over MovieLens in the final implementation!
 
-## Getting started
+## Getting Started
 
 We recommend using a conda virtual environment:
 ```
@@ -22,31 +22,53 @@ To train our model on the MovieLens100K dataset, run:
 ```
 python models.py
 ```
-Check models.py to change arguments for model, dataset, etc.
+Check `models.py` to change arguments for model, dataset, etc.
 
-## Code
+---
 
-A. datasets.py - Preprocessing for each dataset.
+## Paper
 
-B. layers.py - Definitions of neural network classes, including GAT and GCN.
+### Overview
+Recommendation systems have become indispensable tools in the modern digital ecosystem, enabling platforms to offer personalized suggestions that enhance user experience and engagement. Graph Attention Networks (GATs) leverage attention mechanisms to prioritize the most relevant connections in a graph, making them particularly effective for handling complex relationships and dependencies in recommendation datasets.
 
-C. metrics.py - Definitions of metrics used to evaluate recommender systems.
+This project integrates GATs into a movie recommendation system using the MovieLens 100K dataset. By analyzing curated metadata, including user reviews, the system identifies and recommends high-quality movies tailored to user preferences.
 
-D. models.py - Definitions of recommender systems and code to tune/test them. We include our model as well as some of the benchmarks we used ([SVD++](https://people.engr.tamu.edu/huangrh/Spring16/papers_course/matrix_factorization.pdf), [GRALS](https://arxiv.org/pdf/1908.09393v2.pdf), and [MGCNN](https://papers.nips.cc/paper/2017/file/2eace51d8f796d04991c831a07059758-Paper.pdf)). For other benchmarks, we refer you to their github implementations: [IGMC](https://github.com/muhanzhang/IGMC), [GraphRec](https://github.com/wenqifan03/GraphRec-WWW19), [NGCF](https://github.com/xiangwang1223/neural_graph_collaborative_filtering), [F-EAE](https://github.com/mravanba/deep_exchangeable_tensors), [GC-MC](https://github.com/riannevdberg/gc-mc), [NNMF](https://github.com/jstol/neural-net-matrix-factorization).
+---
 
-E. results.py - Print table of metrics after running models.py.
+### Results
+#### Output Examples:
+1. **Top 5 Recommendations Based on RMSE Values**:
+   - These reflect the closest relationships between the input movie and others in the dataset.
 
-## Data
-We release the processed dataset in our paper from the [Yelp data challenge](https://www.yelp.com/dataset). 
+2. **Top 5 Genre-Specific Recommendations**:
+   - This demonstrates the system’s capability to focus on genre-specific predictions.
 
-data/datasets - Standardized datasets.
+#### Graphical Representation:
+- Visualizes results for genre-specific recommendations using color gradients:
+  - **Red**: Closest recommendation.
+  - **Shades of Green**: Progressively less similar recommendations.
 
-data/raw_data - Unprocessed datasets.
+![Graphical Representation](images/graph_visualization.png)
 
-data/results - Saved metrics, hyperparameters, and models.
+#### Training Loss Curves:
+- The following plots show the training loss curves for different learning rates:
 
-## Reference
-If you use this code as part of your research, please cite the following paper: 
+Learning Rate = 0.1:
+![Training Loss Curve 0.1](images/loss_curve_0_1.png)
+
+Learning Rate = 0.01:
+![Training Loss Curve 0.01](images/loss_curve_0_01.png)
+
+Learning Rate = 0.001:
+![Training Loss Curve 0.001](images/loss_curve_0_001.png)
+
+#### Summary:
+The GAT architecture dynamically focuses on relevant neighbors in the graph, achieving accurate predictions while minimizing error.
+
+---
+
+### References
+If you use this code or build upon this work, please cite the following paper:
 ```
 @article{leng2020interpretable,
   title={Interpretable recommender system with heterogeneous information: A geometric deep learning perspective},
