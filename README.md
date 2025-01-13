@@ -74,10 +74,3 @@ If you use this code or build upon this work, please cite the following paper:
   title={Interpretable recommender system with heterogeneous information: A geometric deep learning perspective},
   author={Leng, Yan and Ruiz, Rodrigo and Dong, Xiaowen and Pentland, Alex}
 }
-<<<<<<< HEAD
-```
-=======
-```
-
-
->>>>>>> 2d948d83c9bd3a4d485b5b67e48dfcba9d85d44f
